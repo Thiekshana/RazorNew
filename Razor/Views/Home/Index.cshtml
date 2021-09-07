@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Razor.Models.TaxPayer>
+@{
+    ViewBag.Title = "ProjectContent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var viewModel = ViewData.Model;
+}
+
+<h2>Tax Payer Info</h2>
+
+<table border="0" cellpadding="12" cellspacing="10">
+    @foreach (var taxPayerModel in viewModel)
+    {
+        @if (!string.IsNullOrEmpty(taxPayerModel.PlayerName))
+        {
+            <tr>
+                <td>
+                    Name
+                </td>
+                <td>
+                    @taxPayerModel.PlayerName
+                </td>
+            </tr>
+        }
+
+        <tr>
+            <td>
+                Project Name:
+            </td>
+            <td>
+                @taxPayerModel.PlayerAddress
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Element Number:
+            </td>
+
+            <td>
+                @taxPayerModel.IdentificationNumber
+            </td>
+        </tr>
+    }
+
+
+</table>
