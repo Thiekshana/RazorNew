@@ -32,15 +32,16 @@ namespace Razor.Controllers
         {
             string content = @"{
           ""Id"": 1,
-          ""ProjectNumber"": 5,
+          ""ProjectNumber"": ""5"",
           ""ProjectName"": ""fdsfjhgjhkre"",
           ""ElementNumber"": 45,
           ""ElementName"":""Element 1""}";
             var options = new JsonSerializerOptions();
-            ProjectModel model = JsonSerializer.Deserialize<ProjectModel>(content);
-            Outgoing outgoingModel = new Outgoing(model.Id,model.ProjectNumber,model.ProjectName,model.ElementNumber, model.ElementName);
+            options.Converters.Add(new CustomJsonConverter());
+            ProjectModel model = JsonSerializer.Deserialize<ProjectModel>(content, options);
+            //Outgoing outgoingModel = new Outgoing(model.Id,model.ProjectNumber,model.ProjectName,model.ElementNumber, model.ElementName);
 
-            string json = JsonSerializer.Serialize(outgoingModel);
+            //string json = JsonSerializer.Serialize(outgoingModel);
 
             var result = await _viewRenderService.RenderToStringAsync("Home/Index", model);
             var Renderer = new HtmlToPdf();
