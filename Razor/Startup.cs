@@ -5,8 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Razor.Interfaces;
+using Razor.Models;
 using Razor.Repository;
+using Razor.ValidationFilter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,10 +39,17 @@ namespace Razor
             services.AddSwaggerGen();
             services.AddScoped<ITaxPayerRepository, TaxPayerRepository>();
             // Register the Swagger generator, defining 1 or more Swagger documents
-
+            services.AddMvc(
+             options =>
+             {
+                 options.Filters.Add(typeof(ModelValidationFilter));
+             });
             services.AddControllersWithViews();
             services.AddScoped<IViewRenderService, ViewRenderService>();
+            services.AddLogging();
 
+            // Additional code to register the ILogger as a ILogger<T> where T is the Startup class
+            services.AddSingleton(typeof(ILogger), typeof(Logger<Startup>));
 
         }
 
@@ -56,7 +66,7 @@ namespace Razor
             {
                 c.SwaggerEndpoint("v1/swagger.json", "MyAPI V1");
             });
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseRouting();
 
 

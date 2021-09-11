@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Razor.Interfaces;
 using Razor.Models;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -12,10 +14,11 @@ namespace Razor.Controllers
     {
 
         private readonly ITaxPayerRepository _taxPayers;
-
-        public TaxPayerController(ITaxPayerRepository taxPayers)
+        private readonly ILogger _logger;
+        public TaxPayerController(ITaxPayerRepository taxPayers, ILogger logger)
         {
             _taxPayers = taxPayers;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -51,26 +54,40 @@ namespace Razor.Controllers
 
         [HttpPost]
         [Route("postData")]
-        public async Task<IActionResult> Postjson()
+        public async Task<IActionResult> Postjson([FromBody] Incoming model)
         {
-            var content = @"{""Id"": 1,""ProjectNumber"": ""5"",""ProjectName"": ""fdsfjhgjhkre"",""ElementNumber"": 45,""ElementName"": ""Element 1""}";
 
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
 
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                Converters =
+            //try
+            //{
+            Outgoing modelOutgoing = new Outgoing(model.Id, model.ProjectName, model.ProjectName, model.ElementNumber, model.ElementName);
+
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    Converters =
                 {
                     new CustomJsonConverter()
                 }
-            };
-            options.Converters.Add(new CustomJsonConverter());
-            Outgoing model = JsonSerializer.Deserialize<Outgoing>(content, options);
-            //Outgoing outgoingModel = new Outgoing(model.Id, model.ProjectNumber, model.ProjectName, model.ElementNumber, model.ElementName);
+                };
+                options.Converters.Add(new CustomJsonConverter());
+                return Ok();
 
-            //string json = JsonSerializer.Serialize(outgoingModel);
+            //}
 
-            return Ok();
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError($"Error Message: { ex.Message}");
+            //    return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            //}
+
+
+            
+
         }
 
 
