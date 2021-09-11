@@ -6,9 +6,8 @@ namespace Razor.Models
 {
     public class Outgoing
     {
-        public Outgoing(int id, string projectNumber, string projectName, string elementNumber, string elementName)
+        public Outgoing(string projectNumber, string projectName, string elementNumber, string elementName)
         {
-            Id = id;
             ProjectNumber = projectNumber;
             ProjectName = projectName;
             ElementNumber = Convert.ToChar(elementNumber);
@@ -17,6 +16,7 @@ namespace Razor.Models
             //Convert.ToChar(elementNumber);
         }
 
+        [JsonIgnore]
         public int Id { get; set; }
 
         public string ProjectNumber { get; set; }

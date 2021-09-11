@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Razor.Interfaces;
 using Razor.Models;
 using System;
-using System.Text.Json;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Razor.Controllers
@@ -56,37 +57,36 @@ namespace Razor.Controllers
         [Route("postData")]
         public async Task<IActionResult> Postjson([FromBody] Incoming model)
         {
+            var endPoint = "http://localhost:5000/api/ServerEndPoint";
+            Outgoing modelOutgoing = new Outgoing(model.ProjectNumber, model.ProjectName, model.ElementNumber, model.ElementName);
 
-            //if (!ModelState.IsValid)
-            //{
-            //    return BadRequest(ModelState);
-            //}
+            string json = JsonConvert.SerializeObject(modelOutgoing);
 
-            //try
-            //{
-            Outgoing modelOutgoing = new Outgoing(model.Id, model.ProjectName, model.ProjectName, model.ElementNumber, model.ElementName);
+            using var httpClient = new HttpClient();
+            var stringContent = new StringContent(json, System.Text.Encoding.UTF8,"application/json");
 
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    Converters =
-                {
-                    new CustomJsonConverter()
-                }
-                };
-                options.Converters.Add(new CustomJsonConverter());
-                return Ok();
+            var respone = await httpClient.PostAsync(endPoint, stringContent);
 
-            //}
+            if(respone.IsSuccessStatusCode)
+            {
+                var id = await respone.Content.ReadAsStringAsync();
+                Console.WriteLine($"Id {id} is Created!");
+                return Ok($"Id {id} is Created!");
+            }
 
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError($"Error Message: { ex.Message}");
-            //    return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            //}
-
-
-            
+            else
+            {
+                return BadRequest(respone.Content.ReadAsStringAsync().Result);
+            }
+                //var options = new JsonSerializerOptions
+                //{
+                //    WriteIndented = true,
+                //    Converters =
+                //{
+                //    new CustomJsonConverter()
+                //}
+                //};
+                //options.Converters.Add(new CustomJsonConverter());
 
         }
 

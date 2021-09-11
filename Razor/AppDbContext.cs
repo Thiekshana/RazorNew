@@ -14,5 +14,7 @@ namespace Razor
         {
         }
             public DbSet<TaxPayer> TaxPayers { get; set; }
+            public DbSet<Project> ProjectRecords { get; set; }
+
     }
 }

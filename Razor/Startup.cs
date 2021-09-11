@@ -38,6 +38,7 @@ namespace Razor
             services.AddDbContext<AppDbContext>(options=>options.UseSqlServer(confg));
             services.AddSwaggerGen();
             services.AddScoped<ITaxPayerRepository, TaxPayerRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddMvc(
              options =>
