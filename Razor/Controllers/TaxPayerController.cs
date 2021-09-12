@@ -2,11 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Razor.EventHandlers;
 using Razor.Interfaces;
 using Razor.Models;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using static Razor.Models.ErrorResponseModel;
 
 namespace Razor.Controllers
 {
@@ -15,11 +19,16 @@ namespace Razor.Controllers
     {
 
         private readonly ITaxPayerRepository _taxPayers;
+        private readonly IOutGoingEventsRepository _outgoingEventsRepo;
         private readonly ILogger _logger;
-        public TaxPayerController(ITaxPayerRepository taxPayers, ILogger logger)
+        //private readonly IIntegrationEventHandler _eventhandlerService;
+        private readonly IEventHandlerService _eventHandlerService;
+       public TaxPayerController(ITaxPayerRepository taxPayers, ILogger logger, IOutGoingEventsRepository outgoingEventsRepo, IEventHandlerService eventhandlerService)
         {
             _taxPayers = taxPayers;
             _logger = logger;
+            _outgoingEventsRepo = outgoingEventsRepo;
+            _eventHandlerService = eventhandlerService;
         }
 
         [HttpGet]
@@ -54,42 +63,24 @@ namespace Razor.Controllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Route("postData")]
         public async Task<IActionResult> Postjson([FromBody] Incoming model)
         {
-            var endPoint = "http://localhost:5000/api/ServerEndPoint";
+  
             Outgoing modelOutgoing = new Outgoing(model.ProjectNumber, model.ProjectName, model.ElementNumber, model.ElementName);
 
             string json = JsonConvert.SerializeObject(modelOutgoing);
 
-            using var httpClient = new HttpClient();
-            var stringContent = new StringContent(json, System.Text.Encoding.UTF8,"application/json");
+            await _eventHandlerService.postJson(json);
 
-            var respone = await httpClient.PostAsync(endPoint, stringContent);
-
-            if(respone.IsSuccessStatusCode)
-            {
-                var id = await respone.Content.ReadAsStringAsync();
-                Console.WriteLine($"Id {id} is Created!");
-                return Ok($"Id {id} is Created!");
-            }
-
-            else
-            {
-                return BadRequest(respone.Content.ReadAsStringAsync().Result);
-            }
-                //var options = new JsonSerializerOptions
-                //{
-                //    WriteIndented = true,
-                //    Converters =
-                //{
-                //    new CustomJsonConverter()
-                //}
-                //};
-                //options.Converters.Add(new CustomJsonConverter());
-
+            return Ok();
+ 
         }
 
-
     }
+
 }

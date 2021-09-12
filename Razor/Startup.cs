@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Razor.Interfaces;
 using Razor.Models;
 using Razor.Repository;
+using Razor.Services;
 using Razor.ValidationFilter;
 using System;
 using System.Collections.Generic;
@@ -39,6 +40,8 @@ namespace Razor
             services.AddSwaggerGen();
             services.AddScoped<ITaxPayerRepository, TaxPayerRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IOutGoingEventsRepository, OutGoingEventsRepository>();
+            services.AddScoped<IEventHandlerService, EventHandlerService>();
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddMvc(
              options =>

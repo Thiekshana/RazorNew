@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace Razor.Models
 {
@@ -10,7 +10,7 @@ namespace Razor.Models
         public int Id { get; set; }
 
         public string ProjectNumber { get; set; }
-
+        [Required]
         public string ProjectName { get; set; }
 
         public char ElementNumber { get; set; }
